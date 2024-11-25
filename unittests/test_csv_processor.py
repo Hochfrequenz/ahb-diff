@@ -3,7 +3,7 @@ import pytest
 from pandas.core.frame import DataFrame
 from pandas.testing import assert_frame_equal
 
-from ahlbatross.core import align_columns
+from ahlbatross.core.ahb_comparison import align_columns
 from unittests.conftest import FormatVersions
 
 
