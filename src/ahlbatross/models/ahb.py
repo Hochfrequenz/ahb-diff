@@ -25,7 +25,7 @@ class AhbRowKey:
 class AhbRow(AhbLine):
     """
     Represents a single row of AHB properties according to scraped machine-readable-AHBs provided by kohlr_AHB_i.
-    (1) segment_name == "Segmentname" (e.g. "Nachrichten-Kopfsegment")
+    (1) section_name == "Segmentname" (e.g. "Nachrichten-Kopfsegment")
     (2) segment_group_key == "Segmentgruppe" (e.g "SG2")
     (3) segment_code == "Segment" (e.g. "UNH")
     (4) data_element == "Datenelement" (e.g. "0062")
@@ -37,7 +37,7 @@ class AhbRow(AhbLine):
     (9) conditions == "Bedingung" (e.g. "[2] Wenn SG7 STS+Z06+Z10+ZC1 vorhanden.")
     """
 
-    format_version: str = Field(..., description="Formatversion of an AHB: suffix for properties (1)-(9).")
+    formatversion: str = Field(..., description="Formatversion of an AHB: suffix for properties (1)-(9).")
 
     def get_key(self) -> AhbRowKey:
         """

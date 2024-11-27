@@ -2,15 +2,16 @@
 Entrypoint for typer and the command line interface.
 """
 
+import logging
 import sys
 from pathlib import Path
 
-import pandas as pd
 import typer
 from rich.console import Console
 
-from ahlbatross.core import process_ahb_files
-from ahlbatross.logger import logger
+from ahlbatross.core.ahb_processing import process_ahb_files
+
+logger = logging.getLogger(__name__)
 
 app = typer.Typer(help="ahlbatross diffs machine-readable AHBs")
 err_console = Console(stderr=True)  # https://typer.tiangolo.com/tutorial/printing/#printing-to-standard-error
@@ -37,7 +38,7 @@ def main(
     except PermissionError as e:
         logger.error("❌ Permission denied: %s", str(e))
         sys.exit(1)
-    except (OSError, pd.errors.EmptyDataError, ValueError) as e:
+    except (OSError, ValueError, IOError) as e:
         logger.exception("❌ Error processing AHB files: %s", str(e))
         sys.exit(1)
     except (RuntimeError, TypeError, AttributeError) as e:

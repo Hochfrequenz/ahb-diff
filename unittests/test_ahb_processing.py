@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from ahlbatross.core import get_formatversion_pairs, get_matching_csv_files
-from ahlbatross.utils import parse_formatversions
+from ahlbatross.core.ahb_processing import get_formatversion_pairs, get_matching_csv_files
+from ahlbatross.utils.formatversion_parsing import parse_formatversions
 
 
 def test_parse_valid_formatversions() -> None:
@@ -72,7 +72,6 @@ def test_determine_consecutive_formatversions(tmp_path: Path) -> None:
     """
     test successful determination of consecutive formatversions.
     """
-    # Create test directory structure with formatversions and add dummy file
     submodule: dict[str, dict[str, bool | dict[str, str]]] = {
         "FV2504": {"nachrichtenformat_1": True},
         "FV2410": {"nachrichtenformat_1": True},

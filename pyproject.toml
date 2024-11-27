@@ -21,8 +21,6 @@ classifiers = [
 dependencies = [
     "efoli>=1.0.3",
     "kohlrahbi>=1.11.2",
-    "pandas>=2.2.3",
-    "pandas-stubs>=2.2.3.241009",
     "pydantic>=2.10.1",
     "xlsxwriter>=3.2.0",
     "typer"
