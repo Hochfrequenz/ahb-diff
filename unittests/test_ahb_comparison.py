@@ -871,7 +871,7 @@ class TestMultiColumnComparisons:
         assert "segment_group_key" in str(result[8].diff.changed_entries)
         assert "segment_group_key" in str(result[9].diff.changed_entries)
 
-    def test_align_rows_multiple_entries_per_section_name(self) -> None:
+    def test_align_rows_multiple_rows_per_section_name(self) -> None:
         previous_ahb_rows = [
             AhbRow(
                 formatversion=self.formatversions.previous_formatversion,
@@ -978,6 +978,111 @@ class TestMultiColumnComparisons:
         assert not result[4].diff.changed_entries
         assert "segment_group_key" in str(result[5].diff.changed_entries)
 
+    def test_align_rows_all_ahb_properties_within_section_name(self) -> None:
+        # to handle rows that have been inserted at arbitrary positions within the same `section_name` group
+        # for example FV2504 UTILMD 55078 (SG3 Ansprechpartner):
+        # `previous_ahb_rows` should add an empty row at the top (NEW) for AhbRow's to align properly
+        previous_ahb_rows = [
+            AhbRow(  # equivalent to second AhbRow of `subsequent_ahb_rows`
+                formatversion=self.formatversions.previous_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element=None,
+                segment_id="00009",
+                value_pool_entry=None,
+                name=None,
+                ahb_expression="Muss",
+                conditions=None,
+            ),
+            AhbRow(
+                formatversion=self.formatversions.previous_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element="3139",
+                segment_id="00009",
+                value_pool_entry="IC",
+                name="Informationskontakt",
+                ahb_expression="X",
+                conditions=None,
+            ),
+            AhbRow(
+                formatversion=self.formatversions.previous_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element="3412",
+                segment_id="00009",
+                value_pool_entry=None,
+                name="Name vom Ansprechpartner",
+                ahb_expression="X",
+                conditions=None,
+            ),
+        ]
+        subsequent_ahb_rows = [
+            AhbRow(  # NEW
+                formatversion=self.formatversions.subsequent_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code=None,
+                data_element=None,
+                segment_id=None,
+                value_pool_entry=None,
+                name=None,
+                ahb_expression="Kann",
+                conditions=None,
+            ),
+            AhbRow(  # equivalent to first AhbRow of `previous_ahb_rows`
+                formatversion=self.formatversions.subsequent_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element=None,
+                segment_id="00009",
+                value_pool_entry=None,
+                name=None,
+                ahb_expression="Muss",
+                conditions=None,
+            ),
+            AhbRow(
+                formatversion=self.formatversions.subsequent_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element="3139",
+                segment_id="00009",
+                value_pool_entry="IC",
+                name="Informationskontakt",
+                ahb_expression="X",
+                conditions=None,
+            ),
+            AhbRow(
+                formatversion=self.formatversions.subsequent_formatversion,
+                section_name="Ansprechpartner",
+                segment_group_key="SG3",
+                segment_code="CTA",
+                data_element="3412",
+                segment_id="00009",
+                value_pool_entry=None,
+                name="Name vom Ansprechpartner",
+                ahb_expression="X",
+                conditions=None,
+            ),
+        ]
+
+        result = align_ahb_rows(previous_ahb_rows, subsequent_ahb_rows)
+
+        assert len(result) == 4
+        assert result[0].diff.diff_type == DiffType.ADDED
+        assert result[1].diff.diff_type == DiffType.UNCHANGED
+        assert result[2].diff.diff_type == DiffType.UNCHANGED
+        assert result[3].diff.diff_type == DiffType.UNCHANGED
+
+        assert not result[1].diff.changed_entries
+        assert not result[2].diff.changed_entries
+        assert not result[3].diff.changed_entries
+
     def test_align_rows_different_column_sets(self) -> None:
         previous_ahb_rows = [
             AhbRow(
@@ -1019,12 +1124,10 @@ class TestMultiColumnComparisons:
         result = align_ahb_rows(previous_ahb_rows, subsequent_ahb_rows)
 
         assert len(result) == 3
-        # Check sequence: removed, modified, added
         assert result[0].diff.diff_type == DiffType.REMOVED
         assert result[1].diff.diff_type == DiffType.MODIFIED
         assert result[2].diff.diff_type == DiffType.ADDED
 
-        # Verify specific changes in the modified row
         changed_entries = str(result[1].diff.changed_entries)
         assert "data_element" in changed_entries
         assert "value_pool_entry" in changed_entries
